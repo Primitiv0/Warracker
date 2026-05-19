@@ -142,7 +142,7 @@
     "add_any_notes": "Add any notes about this warranty...",
     "product_photo_optional": "Product Photo (Optional)",
     "choose_photo": "Choose Photo",
-    "invoice_receipt": "Invoice/Receipt",
+    "invoice_receipt": "Invoice",
     "store_locally": "Store Locally",
     "store_in_paperless": "Store in Paperless-ngx",
     "choose_file": "Choose File",
@@ -405,7 +405,8 @@
     "manage_tags": "Manage Tags",
     "close": "Close",
     "save_changes": "Save Changes",
-    "data": "Data"
+    "data": "Data",
+    "view": "View"
   },
   "filters": {
     "all_status": "All Status",

@@ -86,7 +86,7 @@ export function renderCurrentInvoice(element, deleteBtn, warranty, i18n = window
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_invoice') : 'Current invoice') + ': ';
     const label = document.createTextNode(labelText);
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -100,7 +100,7 @@ export function renderCurrentInvoice(element, deleteBtn, warranty, i18n = window
     const span = createElement('span', 'text-success');
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_invoice') : 'Current invoice') + ': ';
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -126,7 +126,7 @@ export function renderCurrentManual(element, deleteBtn, warranty, i18n = window.
     const span = createElement('span', 'text-success');
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_manual') : 'Current manual') + ': ';
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -140,7 +140,7 @@ export function renderCurrentManual(element, deleteBtn, warranty, i18n = window.
     const span = createElement('span', 'text-success');
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_manual') : 'Current manual') + ': ';
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -185,7 +185,7 @@ export function renderCurrentPhoto(element, deleteBtn, warranty, i18n = window.i
     const span = createElement('span', 'text-success');
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_photo') : 'Current photo') + ': ';
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -212,7 +212,7 @@ export function renderCurrentOther(element, deleteBtn, warranty, i18n = window.i
     const span = createElement('span', 'text-success');
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_other_document') : 'Current files') + ': ';
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -226,7 +226,7 @@ export function renderCurrentOther(element, deleteBtn, warranty, i18n = window.i
     const span = createElement('span', 'text-success');
     const icon = createElement('i', 'fas fa-check-circle');
     const labelText = (i18n ? i18n.t('warranties.current_other_document') : 'Current files') + ': ';
-    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view') : 'View'));
+    const a = createElement('a', 'view-document-link', (i18n ? i18n.t('actions.view', { defaultValue: 'View' }) : 'View'));
     a.href = '#';
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -646,6 +646,16 @@ export async function saveWarranty() {
   if (manualFile) formData.append('manual', manualFile);
   if (otherDocumentFile) formData.append('other_document', otherDocumentFile);
   if (productPhotoFile) formData.append('product_photo', productPhotoFile);
+
+  // Paperless browse selections (linked existing documents)
+  const paperlessFields = [
+    ['selectedEditPaperlessInvoice', 'paperless_invoice_id'],
+    ['selectedEditPaperlessManual', 'paperless_manual_id'],
+  ];
+  paperlessFields.forEach(([inputId, formKey]) => {
+    const hidden = document.getElementById(inputId);
+    if (hidden && hidden.value) formData.append(formKey, hidden.value);
+  });
 
   // Deletion flags
   const deleteInvoiceBtn = document.getElementById('deleteInvoiceBtn');

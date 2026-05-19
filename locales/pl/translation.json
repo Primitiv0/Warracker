@@ -393,7 +393,8 @@
     "download": "Pobierz",
     "manage_tags": "Zarządzaj tagami",
     "close": "Zamknij",
-    "save_changes": "Zapisz zmiany"
+    "save_changes": "Zapisz zmiany",
+    "view": "Wyświetl"
   },
   "filters": {
     "all_status": "Wszystkie statusy",

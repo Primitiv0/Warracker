@@ -400,7 +400,8 @@
     "download": "Завантажити",
     "manage_tags": "Керування тегами",
     "close": "Закрити",
-    "save_changes": "Зберегти зміни"
+    "save_changes": "Зберегти зміни",
+    "view": "Переглянути"
   },
   "filters": {
     "all_status": "Всі статуси",

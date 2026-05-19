@@ -395,7 +395,8 @@
     "download": "Télécharger",
     "manage_tags": "Gérer les Étiquettes",
     "close": "Fermer",
-    "save_changes": "Enregistrer les Modifications"
+    "save_changes": "Enregistrer les Modifications",
+    "view": "Voir"
   },
   "filters": {
     "all_status": "Tous les Statuts",

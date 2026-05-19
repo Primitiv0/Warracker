@@ -4050,7 +4050,7 @@ function generateDocumentLink(warranty, docType) {
             paperlessId: warranty.paperless_invoice_id,
             url: warranty.invoice_url,
             icon: 'fas fa-file-invoice',
-            label: 'Invoice',
+            label: window.i18next ? window.i18next.t('warranties.invoice_receipt_short', 'Invoice') : 'Invoice',
             className: 'invoice-link'
         },
         manual: {
@@ -4058,7 +4058,7 @@ function generateDocumentLink(warranty, docType) {
             paperlessId: warranty.paperless_manual_id,
             url: warranty.manual_url,
             icon: 'fas fa-book',
-            label: 'Manual',
+            label: window.i18next ? window.i18next.t('warranties.product_manual', 'Manual') : 'Manual',
             className: 'manual-link'
         },
         other: {
@@ -4066,15 +4066,15 @@ function generateDocumentLink(warranty, docType) {
             paperlessId: warranty.paperless_other_id,
             url: warranty.other_document_url,
             icon: 'fas fa-file-alt',
-            label: 'Files',
+            label: window.i18next ? window.i18next.t('warranties.files', 'Files') : 'Files',
             className: 'other-document-link'
         },
         photo: {
             localPath: warranty.product_photo_path,
             paperlessId: warranty.paperless_photo_id,
-            url: null, // Photos don't have URLs
+            url: null,
             icon: 'fas fa-image',
-            label: 'Photo',
+            label: window.i18next ? window.i18next.t('warranties.product_photo', 'Photo') : 'Photo',
             className: 'photo-link'
         }
     };

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'warracker-cache-v20251030001';
+const CACHE_NAME = 'warracker-cache-v20260518005';
 const urlsToCache = [
   // HTML pages
   './',
@@ -21,7 +21,7 @@ const urlsToCache = [
   './mobile-header.css?v=20250119002',
 
   // JavaScript (versioned)
-  './script.js?v=20250119002',
+  './script.js?v=20260518002',
   './auth.js?v=20250119001',
   './settings-new.js?v=20250119001',
   './status.js?v=20250119001',
@@ -31,7 +31,7 @@ const urlsToCache = [
   './include-auth-new.js?v=20250119001',
   './file-utils.js?v=20250119001',
   './fix-auth-buttons-loader.js?v=20250119001',
-  './auth-redirect.js?v=20250119001',
+  './auth-redirect.js?v=20260518001',
   './mobile-menu.js?v=20250119002',
   './version-checker.js?v=20250119001',
 
@@ -70,14 +70,37 @@ self.addEventListener('fetch', event => {
   }
 
   const requestUrl = new URL(event.request.url);
+  const isSameOrigin = requestUrl.origin === self.location.origin;
 
+  // Network-first for scripts: always fetch fresh JS so code updates are
+  // picked up immediately, falling back to cache only when offline.
+  if (event.request.destination === 'script') {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (isSameOrigin && networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request).then(cachedResponse => {
+            if (cachedResponse) return cachedResponse;
+            return Promise.reject(new Error('Network error and no cache.'));
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-first for everything else (images, fonts, CSS, HTML).
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       const fetchPromise = fetch(event.request)
         .then(networkResponse => {
-          const isSameOrigin = requestUrl.origin === self.location.origin;
           const okToCache = isSameOrigin && networkResponse && networkResponse.status === 200 &&
-            ['document', 'script', 'style', 'image', 'font'].includes(event.request.destination);
+            ['document', 'style', 'image', 'font'].includes(event.request.destination);
 
           if (okToCache) {
             const responseToCache = networkResponse.clone();

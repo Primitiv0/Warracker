@@ -394,7 +394,8 @@
     "download": "ダウンロード",
     "manage_tags": "タグを管理",
     "close": "閉じる",
-    "save_changes": "変更を保存"
+    "save_changes": "変更を保存",
+    "view": "表示"
   },
   "filters": {
     "all_status": "すべてのステータス",

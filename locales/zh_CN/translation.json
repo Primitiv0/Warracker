@@ -403,7 +403,8 @@
     "manage_tags": "管理标签",
     "close": "关闭",
     "save_changes": "保存更改",
-    "data": "数据"
+    "data": "数据",
+    "view": "查看"
   },
   "filters": {
     "all_status": "所有状态",

@@ -449,7 +449,8 @@
     "download": "Scarica",
     "manage_tags": "Gestisci Tag",
     "close": "Chiudi",
-    "save_changes": "Salva Modifiche"
+    "save_changes": "Salva Modifiche",
+    "view": "Visualizza"
   },
   "filters": {
     "all_status": "Tutti gli Stati",

@@ -443,10 +443,10 @@ export function updateSummary() {
 		}
 	}
 
-	updateFileSummary(state.summary.productPhoto, state.fileInputs.productPhoto);
-	updateFileSummary(state.summary.invoice, state.fileInputs.invoice, getValue('invoiceUrl'));
-	updateFileSummary(state.summary.manual, state.fileInputs.manual, getValue('manualUrl'));
-	updateFileSummary(state.summary.otherDocument, state.fileInputs.other, getValue('otherDocumentUrl'));
+	updateFileSummary(state.summary.productPhoto, state.fileInputs.productPhoto, '', 'selectedPaperlessProductPhoto');
+	updateFileSummary(state.summary.invoice, state.fileInputs.invoice, getValue('invoiceUrl'), 'selectedPaperlessInvoice');
+	updateFileSummary(state.summary.manual, state.fileInputs.manual, getValue('manualUrl'), 'selectedPaperlessManual');
+	updateFileSummary(state.summary.otherDocument, state.fileInputs.other, getValue('otherDocumentUrl'), 'selectedPaperlessOtherDocument');
 
 	renderSummaryTags();
 
@@ -844,13 +844,20 @@ function pluralize(key, fallback, count) {
 	return `${fallback}${count !== 1 ? 's' : ''}`;
 }
 
-function updateFileSummary(summaryElement, entry, urlValue = '') {
+function updateFileSummary(summaryElement, entry, urlValue = '', paperlessInputId = '') {
 	if (!summaryElement) return;
 	if (entry?.input?.files?.[0]) {
 		summaryElement.textContent = entry.input.files[0].name;
-	} else if (urlValue) {
+	} else if (paperlessInputId) {
+		const hidden = document.getElementById(paperlessInputId);
+		if (hidden && hidden.value) {
+			summaryElement.textContent = `Paperless-ngx #${hidden.value}`;
+			return;
+		}
+	}
+	if (urlValue) {
 		summaryElement.textContent = `URL: ${urlValue}`;
-	} else {
+	} else if (!entry?.input?.files?.[0]) {
 		summaryElement.textContent = window.i18next ? window.i18next.t('warranties.not_specified') : 'Not specified';
 	}
 }

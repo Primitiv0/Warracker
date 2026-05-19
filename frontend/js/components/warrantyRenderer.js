@@ -203,7 +203,7 @@ function generateDocumentLink(warranty, docType) {
 			paperlessId: warranty.paperless_invoice_id,
 			url: warranty.invoice_url,
 			icon: 'fas fa-file-invoice',
-			label: t('warranties.invoice_receipt', 'Invoice'),
+			label: t('warranties.invoice_receipt_short', 'Invoice'),
 			className: 'invoice-link',
 		},
 		manual: {

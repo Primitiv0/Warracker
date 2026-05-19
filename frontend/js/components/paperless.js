@@ -417,14 +417,25 @@ export function openPaperlessBrowser(documentType) {
 	const modal = document.getElementById('paperlessBrowserModal');
 	if (modal) {
 		modal.classList.add('active');
+		const searchInput = document.getElementById('paperlessSearchInput');
+		const typeFilter = document.getElementById('paperlessTypeFilter');
+		const tagFilter = document.getElementById('paperlessTagFilter');
+		if (searchInput) searchInput.value = '';
+		if (typeFilter) typeFilter.value = '';
+		if (tagFilter) tagFilter.value = '';
+		const selectBtn = document.getElementById('selectPaperlessDocBtn');
+		if (selectBtn) selectBtn.style.display = 'none';
 		fetchPaperlessDocuments();
+		loadPaperlessTags();
 	}
 }
 
 function closePaperlessBrowser() {
 	const modal = document.getElementById('paperlessBrowserModal');
 	if (modal) modal.classList.remove('active');
-	browserState.documentType = null;
+	browserState.selectedDocument = null;
+	const selectBtn = document.getElementById('selectPaperlessDocBtn');
+	if (selectBtn) selectBtn.style.display = 'none';
 }
 
 async function fetchPaperlessDocuments(page = 1, query = '') {
@@ -432,19 +443,23 @@ async function fetchPaperlessDocuments(page = 1, query = '') {
 		const token = getAuthToken();
 		if (!token) throw new Error('Authentication required');
 		showPaperlessLoading();
-		const params = new URLSearchParams({
-			page: page.toString(),
-			query,
-			document_type: browserState.documentType.replace('edit_', ''),
-		});
-		const response = await fetch(`/api/paperless/documents?${params.toString()}`, {
-			headers: { Authorization: `Bearer ${token}` },
+		const PAGE_SIZE = 25;
+		const offset = (page - 1) * PAGE_SIZE;
+		const params = new URLSearchParams();
+		params.append('limit', PAGE_SIZE.toString());
+		params.append('offset', offset.toString());
+		if (query) params.append('query', query);
+		const response = await fetch(`/api/paperless/search?${params.toString()}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
 		});
 		if (!response.ok) throw new Error('Failed to fetch documents');
-		const result = await response.json();
-		browserState.currentPage = result.page || page;
-		browserState.totalPages = result.total_pages || 1;
-		browserState.documents = result.documents || [];
+		const data = await response.json();
+		browserState.currentPage = page;
+		browserState.totalPages = Math.ceil((data.count || 0) / PAGE_SIZE) || 1;
+		browserState.documents = data.results || [];
 		renderPaperlessDocuments();
 		updatePaperlessPagination();
 	} catch (error) {
@@ -453,8 +468,36 @@ async function fetchPaperlessDocuments(page = 1, query = '') {
 	}
 }
 
+async function loadPaperlessTags() {
+	try {
+		const token = getAuthToken();
+		if (!token) return;
+		const response = await fetch('/api/paperless/tags', {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				'Content-Type': 'application/json',
+			},
+		});
+		if (!response.ok) return;
+		const data = await response.json();
+		const tagFilter = document.getElementById('paperlessTagFilter');
+		if (!tagFilter) return;
+		tagFilter.innerHTML = '<option value="">All Tags</option>';
+		if (data.results) {
+			data.results.forEach((tag) => {
+				const option = document.createElement('option');
+				option.value = tag.id;
+				option.textContent = tag.name;
+				tagFilter.appendChild(option);
+			});
+		}
+	} catch (error) {
+		console.error('[paperless] Failed to load tags', error);
+	}
+}
+
 function renderPaperlessDocuments() {
-	const container = document.getElementById('paperlessDocumentsContainer');
+	const container = document.getElementById('paperlessDocumentsList');
 	if (!container) return;
 	container.textContent = '';
 	if (!browserState.documents.length) {
@@ -483,25 +526,59 @@ function renderPaperlessDocuments() {
 }
 
 function selectPaperlessDocument(documentId) {
-	const doc = browserState.documents.find((d) => d.id === documentId);
+	document.querySelectorAll('.paperless-document-item').forEach((item) => {
+		item.classList.remove('selected');
+	});
+	const selectedItem = document.querySelector(`[data-id="${documentId}"]`);
+	if (selectedItem) {
+		selectedItem.classList.add('selected');
+		const allDocs = browserState.documents.concat(window.currentPaperlessDocuments || []);
+		const found = allDocs.find((d) => d.id === documentId);
+		const titleEl = selectedItem.querySelector('.document-title');
+		browserState.selectedDocument = found || { id: documentId, title: titleEl ? titleEl.textContent : `Document #${documentId}` };
+		const selectBtn = document.getElementById('selectPaperlessDocBtn');
+		if (selectBtn) {
+			selectBtn.style.display = 'inline-block';
+			selectBtn.onclick = () => confirmPaperlessSelection();
+		}
+	}
+}
+
+function confirmPaperlessSelection() {
+	const doc = browserState.selectedDocument;
 	if (!doc) return;
 	const type = browserState.documentType;
 	const inputId = getSelectionInputId(type);
-	const input = document.getElementById(inputId);
-	if (input) input.value = documentId;
-	updatePaperlessSelectionUI();
+	const displayId = getSelectionDisplayId(type);
+	let input = document.getElementById(inputId);
+	if (!input) {
+		input = document.createElement('input');
+		input.type = 'hidden';
+		input.id = inputId;
+		input.name = inputId;
+		document.body.appendChild(input);
+	}
+	input.value = doc.id;
+	const display = document.getElementById(displayId);
+	if (display) {
+		display.style.display = 'flex';
+		const nameEl = display.querySelector('.selected-doc-name');
+		if (nameEl) nameEl.textContent = doc.title || `Document #${doc.id}`;
+	}
 	closePaperlessBrowser();
 }
 
 function updatePaperlessSelectionUI() {
 	const types = ['invoice', 'manual', 'productPhoto', 'otherDocument', 'edit_invoice', 'edit_manual', 'edit_productPhoto', 'edit_otherDocument'];
 	types.forEach((type) => {
-		const input = document.getElementById(getSelectionInputId(type));
+		const inputId = getSelectionInputId(type);
+		const input = document.getElementById(inputId);
 		const display = document.getElementById(getSelectionDisplayId(type));
-		if (!input || !display) return;
-		if (input.value) {
+		if (!display) return;
+		if (input && input.value) {
 			display.style.display = 'flex';
-			display.querySelector('.selected-doc-name').textContent = `${window.t ? window.t('paperless.document_selected') : 'Document selected'} (#${input.value})`;
+			const nameEl = display.querySelector('.selected-doc-name');
+			if (nameEl) nameEl.textContent = `${window.t ? window.t('paperless.document_selected') : 'Document selected'} (#${input.value})`;
 		} else {
 			display.style.display = 'none';
 		}
@@ -518,30 +595,38 @@ export function clearPaperlessSelection(documentType) {
 function changePage(direction) {
 	const targetPage = browserState.currentPage + direction;
 	if (targetPage < 1 || targetPage > browserState.totalPages) return;
-	fetchPaperlessDocuments(targetPage, browserState.searchQuery);
+	browserState.currentPage = targetPage;
+	const searchInput = document.getElementById('paperlessSearchInput');
+	const query = searchInput ? searchInput.value.trim() : '';
+	fetchPaperlessDocuments(targetPage, query);
 }
 
 function updatePaperlessPagination() {
-	const current = document.getElementById('paperlessCurrentPage');
-	const total = document.getElementById('paperlessTotalPages');
-	if (current) current.textContent = browserState.currentPage;
-	if (total) total.textContent = browserState.totalPages;
-	const prev = document.getElementById('paperlessPrevBtn');
-	const next = document.getElementById('paperlessNextBtn');
-	if (prev) prev.disabled = browserState.currentPage <= 1;
-	if (next) next.disabled = browserState.currentPage >= browserState.totalPages;
+	const paginationDiv = document.getElementById('paperlessPagination');
+	const prevBtn = document.getElementById('prevPageBtn');
+	const nextBtn = document.getElementById('nextPageBtn');
+	const pageInfo = document.getElementById('pageInfo');
+	if (!paginationDiv) return;
+	if (browserState.totalPages <= 1) {
+		paginationDiv.style.display = 'none';
+		return;
+	}
+	paginationDiv.style.display = 'flex';
+	if (prevBtn) prevBtn.disabled = browserState.currentPage <= 1;
+	if (nextBtn) nextBtn.disabled = browserState.currentPage >= browserState.totalPages;
+	if (pageInfo) pageInfo.textContent = `Page ${browserState.currentPage} of ${browserState.totalPages}`;
 }
 
 function showPaperlessLoading() {
-	const container = document.getElementById('paperlessDocumentsContainer');
+	const container = document.getElementById('paperlessDocumentsList');
 	if (!container) return;
-	container.innerHTML = `<div class="loading-message">
+	container.innerHTML = `<div class="loading-message" style="text-align: center; padding: 40px;">
 		<i class="fas fa-spinner fa-spin"></i> ${window.t ? window.t('paperless.loading_documents') : 'Loading documents...'}
 	</div>`;
 }
 
 function showPaperlessError(message) {
-	const container = document.getElementById('paperlessDocumentsContainer');
+	const container = document.getElementById('paperlessDocumentsList');
 	if (!container) return;
 	container.innerHTML = `<div class="no-documents-message">
 		<i class="fas fa-exclamation-triangle"></i>
@@ -656,6 +741,8 @@ export function clearImageCache() {
 if (typeof window !== 'undefined') {
 	window.openPaperlessDocument = openPaperlessDocument;
 	window.openPaperlessBrowser = openPaperlessBrowser;
+	window.selectPaperlessDocument = selectPaperlessDocument;
+	window.confirmPaperlessSelection = confirmPaperlessSelection;
 	window.clearPaperlessSelection = clearPaperlessSelection;
 	window.autoLinkRecentDocuments = autoLinkRecentDocuments;
 	window.loadSecureImages = loadSecureImages;

@@ -401,7 +401,8 @@
     "download": "تنزيل",
     "manage_tags": "إدارة العلامات",
     "close": "إغلاق",
-    "save_changes": "حفظ التغييرات"
+    "save_changes": "حفظ التغييرات",
+    "view": "عرض"
   },
   "filters": {
     "all_status": "كل الحالات",

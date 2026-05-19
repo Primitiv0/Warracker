@@ -576,7 +576,8 @@
     "download": "İndir",
     "manage_tags": "Etiketleri Yönet",
     "close": "Kapat",
-    "save_changes": "Değişiklikleri Kaydet"
+    "save_changes": "Değişiklikleri Kaydet",
+    "view": "Görüntüle"
   },
   "filters": {
     "all_status": "Tüm Durumlar",

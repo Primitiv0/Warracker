@@ -394,7 +394,8 @@
     "download": "다운로드",
     "manage_tags": "태그 관리",
     "close": "닫기",
-    "save_changes": "변경 사항 저장"
+    "save_changes": "변경 사항 저장",
+    "view": "보기"
   },
   "filters": {
     "all_status": "모든 상태",

@@ -404,7 +404,8 @@
     "download": "הורד",
     "manage_tags": "נהל תגיות",
     "close": "סגור",
-    "save_changes": "שמור שינויים"
+    "save_changes": "שמור שינויים",
+    "view": "הצג"
   },
   "filters": {
     "all_status": "כל המצבים",

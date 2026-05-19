@@ -1,5 +1,17 @@
 # Changelog
-## 1.0.3 - 2026-03-29
+## 1.0.3 - 2026-05-18
+
+### Fixed
+- **Expired JWT Broken UI State:** Fixed critical issue where users returning to the app after their JWT expired would see a broken, empty UI instead of being redirected to login.
+  - **Root Cause:** `auth-redirect.js` only checked for the *presence* of `auth_token` in localStorage, not its validity. An expired token was treated as authenticated, causing the UI to render with stale cached data while API calls returned 401.
+  - **Solution:** Updated `auth-redirect.js` to synchronously decode the JWT payload and verify the `exp` claim before allowing protected pages to load. Expired or malformed tokens are automatically cleared from localStorage and the user is redirected to login.
+  - Added OIDC SSO bypass for `auth-redirect.html` to prevent redirect loops during SSO token processing.
+  - _Files: `frontend/auth-redirect.js`, `frontend/sw.js`, `frontend/index.html`, `frontend/status.html`, `frontend/settings-new.html`, `frontend/login.html`, `frontend/register.html`, `frontend/auth-redirect.html`_
+
+- **Docker Build Failure (Stale Package Versions):** Fixed Dockerfile failing to build due to outdated pinned Debian package versions.
+  - **Root Cause:** Exact version pins for Debian Trixie packages became stale after security updates (e.g., `libcurl4` renamed to `libcurl4t64`, versions bumped with `+deb13u3` suffix).
+  - **Solution:** Removed brittle version pins from `apt-get install` commands. Reproducibility is maintained via the SHA-pinned base image digest.
+  - _Files: `Dockerfile`_
 
 ### Enhanced
 - **Frontend Architecture Refactoring:** Migrated frontend JavaScript from monolithic `script.js` to modular ES modules for improved maintainability and code organization.
@@ -27,6 +39,16 @@
   - _Files: `frontend/js/components/paperless.js`, `frontend/script.js`, `frontend/style.css`_
 
 ### Fixed
+- **Paperless-ngx Document Browse in Add Warranty Wizard:** Fixed bug where browsing and selecting an existing Paperless-ngx document during new warranty creation would silently fail to attach the document.
+  - **Root Cause:** The modular `paperless.js` (loaded as an ES module after `script.js`) was overriding the working legacy Paperless browser functions with broken versions that used a non-existent API endpoint (`/api/paperless/documents` instead of `/api/paperless/search`), targeted a non-existent DOM container (`#paperlessDocumentsContainer` instead of `#paperlessDocumentsList`), and failed to dynamically create hidden inputs to store the selected document ID.
+  - **Solution:** Fixed the modular `openPaperlessBrowser`, `fetchPaperlessDocuments`, `selectPaperlessDocument`, and related functions to use the correct API endpoint, DOM element IDs, pagination controls, and to dynamically create hidden inputs when a document is selected. Also added Paperless browse selection support to the edit warranty modal (`editModal.js`).
+  - _Files: `frontend/js/components/paperless.js`, `frontend/js/components/addWarrantyForm.js`, `frontend/js/components/editModal.js`_
+
+- **Warranty Card Invoice Label:** Fixed warranty card document link displaying "Invoice/Receipt" instead of just "Invoice".
+  - **Root Cause:** `warrantyRenderer.js` was using the `warranties.invoice_receipt` translation key (full form label) instead of the `warranties.invoice_receipt_short` key intended for card display.
+  - **Solution:** Changed the translation key to `warranties.invoice_receipt_short`.
+  - _Files: `frontend/js/components/warrantyRenderer.js`_
+
 - **Paperless-ngx File Upload:** Fixed critical bug where files selected for Paperless-ngx storage were incorrectly uploaded locally instead.
   - **Root Cause:** The `getStorageOption()` function was generating incorrect radio button names for the add warranty form (`InvoiceStorage` instead of `invoiceStorage`), causing the storage selection to default to 'local'.
   - **Solution:** Corrected the function to use lowercase names for add form (`invoiceStorage`, `manualStorage`) and camelCase for edit form (`editInvoiceStorage`, `editManualStorage`).
@@ -64,6 +86,16 @@
 - **Missing Translations:** Added missing translation keys to resolve console warnings.
   - Added keys: `filters.filter`, `filters.filter_by`, `filters.clear`, `filters.apply`, `filters.sort`, `warranties.archived`, `actions.data`, `warranties.or_link_to_invoice_url`, `warranties.or_link_to_manual_url`, `warranties.or_link_to_files_url`, `warranties.enter_serial_number`, `warranties.add_serial_number`.
   - _Files: `locales/en/translation.json`_
+
+- **Missing `actions.view` Translation Key:** Fixed edit modal showing raw key `actions.view` instead of "View" for document preview links.
+  - **Root Cause:** The `actions.view` key was absent from the `actions` section in all 20 locale files. `editModal.js` called `i18n.t('actions.view')` without a `defaultValue`, so when the key was missing i18next returned the key path string instead of a human-readable fallback.
+  - **Solution:** Added `"view"` to the `actions` section of all 20 locale files with the appropriate native translation for each language. Also updated all 7 call sites in `editModal.js` to use `{ defaultValue: 'View' }` so missing keys always fall back gracefully.
+  - _Files: `frontend/js/components/editModal.js`, `locales/*/translation.json` (all 20 locales)_
+
+- **Service Worker Caching JS Files Indefinitely:** Fixed JS module updates (e.g. `editModal.js`, `warrantyRenderer.js`) not being picked up by returning users even after a Docker rebuild.
+  - **Root Cause:** The service worker used a cache-first strategy for all request types including scripts. Once a JS file was stored in the SW cache it was served directly from there, completely bypassing nginx — making nginx cache headers irrelevant and preventing code updates from reaching users until the `CACHE_NAME` was manually bumped.
+  - **Solution:** Changed the SW fetch handler to use a **network-first** strategy for all script requests (falling back to cache only when offline) and kept cache-first only for non-code assets (images, fonts, CSS, HTML). Also updated nginx to serve `.js` files with `Cache-Control: no-cache, must-revalidate` so the browser always revalidates JS on each visit.
+  - _Files: `frontend/sw.js`, `nginx.conf`_
 
 ## 1.0.2 - 2025-10-30
 

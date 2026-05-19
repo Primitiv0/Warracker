@@ -394,7 +394,8 @@
     "download": "下載",
     "manage_tags": "管理標籤",
     "close": "關閉",
-    "save_changes": "儲存變更"
+    "save_changes": "儲存變更",
+    "view": "查看"
   },
   "filters": {
     "all_status": "所有狀態",

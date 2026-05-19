@@ -392,7 +392,8 @@
     "download": "डाउनलोड",
     "manage_tags": "टैग प्रबंधित करें",
     "close": "बंद करें",
-    "save_changes": "परिवर्तन सहेजें"
+    "save_changes": "परिवर्तन सहेजें",
+    "view": "देखें"
   },
   "filters": {
     "all_status": "सभी स्थितियाँ",

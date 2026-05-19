@@ -393,7 +393,8 @@
     "download": "Downloaden",
     "manage_tags": "Tags beheren",
     "close": "Sluiten",
-    "save_changes": "Wijzigingen opslaan"
+    "save_changes": "Wijzigingen opslaan",
+    "view": "Bekijken"
   },
   "filters": {
     "all_status": "Alle statussen",

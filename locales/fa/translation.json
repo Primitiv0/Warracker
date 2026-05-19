@@ -394,7 +394,8 @@
     "download": "دانلود",
     "manage_tags": "مدیریت برچسب‌ها",
     "close": "بستن",
-    "save_changes": "ذخیره تغییرات"
+    "save_changes": "ذخیره تغییرات",
+    "view": "مشاهده"
   },
   "filters": {
     "all_status": "همه وضعیت‌ها",

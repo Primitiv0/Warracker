@@ -400,7 +400,8 @@
     "download": "Stáhnout",
     "manage_tags": "Spravovat tagy",
     "close": "Zavřít",
-    "save_changes": "Uložit změny"
+    "save_changes": "Uložit změny",
+    "view": "Zobrazit"
   },
   "filters": {
     "all_status": "Všechny stavy",

@@ -395,7 +395,8 @@
     "download": "Descargar",
     "manage_tags": "Gestionar Etiquetas",
     "close": "Cerrar",
-    "save_changes": "Guardar Cambios"
+    "save_changes": "Guardar Cambios",
+    "view": "Ver"
   },
   "filters": {
     "all_status": "Todos los Estados",

@@ -425,7 +425,8 @@
     "download": "Baixar",
     "manage_tags": "Gerenciar Etiquetas",
     "close": "Fechar",
-    "save_changes": "Salvar Alterações"
+    "save_changes": "Salvar Alterações",
+    "view": "Ver"
   },
   "filters": {
     "all_status": "Todos os Status",

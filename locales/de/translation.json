@@ -393,7 +393,8 @@
     "download": "Herunterladen",
     "manage_tags": "Tags verwalten",
     "close": "Schließen",
-    "save_changes": "Änderungen speichern"
+    "save_changes": "Änderungen speichern",
+    "view": "Anzeigen"
   },
   "filters": {
     "all_status": "Alle Status",
